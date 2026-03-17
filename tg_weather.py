@@ -12,6 +12,7 @@ TG_BOT_TOKEN = os.getenv('tg_bot_token')
 TG_BOT_SESSION = os.getenv('tg_bot_session')
 AUTHORIZED_USER_ID = os.getenv('authorized_user_id')
 WT_PATH = os.getenv('wt_path')
+REPORT = os.getenv('report')
 
 client = TelegramClient(TG_BOT_SESSION, APP_ID, APP_HASH)
 
@@ -44,12 +45,12 @@ async def handler(event):
     script_name = 'python ' + SCRIPT_MAP.get(event.data)
     subprocess.run(script_name, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     
-    with open('results', 'r') as f:
+    with open(REPORT) as f:
         message = '\n'.join(f.read().split('\n')) 
     message = await client.send_message(int(AUTHORIZED_USER_ID), message)
     msg_ids.append(message.id)
     msg_ids.append(message.id+1)
-    subprocess.run('rm results', shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(f'rm {REPORT}', shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 @client.on(events.NewMessage(pattern='/clear', from_users=int(AUTHORIZED_USER_ID)))

@@ -5,7 +5,7 @@ load_dotenv()
 
 ir = os.getenv('ir').split(' ')
 kv = os.getenv('kv').split(' ')
-
+REPORT = os.getenv('report')
 
 url = "https://api.open-meteo.com/v1/forecast"
 params = {"timezone": "Europe/Kyiv"}
@@ -39,7 +39,7 @@ data = responses.json()
 
 if len(sys.argv) == 2:
     message = "Temperature 👉  " + str(data['current']['temperature_2m']) + "°C\nRelative Humidity 👉  " + str(data['current']['relativehumidity_2m']) + "%\nPrecipitation Probability 👉  " + str(data['current']['precipitation_probability']) + "%\nWind Speed 👉  " + str(data['current']['wind_speed_10m']) + "km/h"
-    with open("results", 'w') as f: f.write(message)
+    with open(REPORT, 'w') as f: f.write(message)
     print(message)
 
 elif len(sys.argv) == 3:
@@ -48,7 +48,7 @@ elif len(sys.argv) == 3:
             tmp = str(data['hourly']['temperature_2m'][id])
             prc_prb = str(data['hourly']['precipitation_probability'][id])
             message = i.split('T')[-1] + ' 👉  ' + tmp + '°C    ' + prc_prb + '%'
-            with open("results", 'a') as f: f.write(message+'\n')
+            with open(REPORT, 'a') as f: f.write(message+'\n')
             print(message)
     
     elif sys.argv[2] == 'w':
@@ -57,7 +57,7 @@ elif len(sys.argv) == 3:
             min_tmp = str(data['daily']['temperature_2m_min'][id])
             max_prc_prb = str(data['daily']['precipitation_probability_max'][id]) 
             message = i.split('-')[-1] + ' 👉  ' + max_tmp + '/' + min_tmp + '°C    ' + max_prc_prb + '%'
-            with open("results", 'a') as f: f.write(message+'\n')
+            with open(REPORT, 'a') as f: f.write(message+'\n')
             print(message)
 
 
