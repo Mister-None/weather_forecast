@@ -4,13 +4,13 @@ from telethon.tl.functions.users import GetFullUserRequest
 from dotenv import load_dotenv
 import subprocess, os, asyncio
 
-load_dotenv()
+load_dotenv(dotenv_path=os.getenv('DOTENV_FILE_PATH'))
 
-APP_ID = os.getenv('app_id')
-APP_HASH = os.getenv('app_hash')
-TG_BOT_TOKEN = os.getenv('tg_bot_token')
-TG_BOT_SESSION = os.getenv('tg_bot_session')
-AUTHORIZED_USER_ID = os.getenv('authorized_user_id')
+APP_ID = os.getenv('private_app_id')
+APP_HASH = os.getenv('private_app_hash')
+TG_BOT_TOKEN = os.getenv('tg_wtbot_token')
+TG_BOT_SESSION = os.getenv('tg_wtbot_session')
+TG_USER_ID = os.getenv('tg_user_id')
 WT_PATH = os.getenv('wt_path')
 REPORT = os.getenv('report')
 
@@ -25,9 +25,7 @@ SCRIPT_MAP = {
     b"script6": WT_PATH + ' kv w',
 }
 
-msg_ids = []
-
-@client.on(events.NewMessage(pattern='/start', from_users=int(AUTHORIZED_USER_ID)))
+@client.on(events.NewMessage(pattern='/start', from_users=int(TG_USER_ID)))
 async def start(event):
     await event.respond(
         "WEATHER FORECAST",
@@ -47,22 +45,28 @@ async def handler(event):
     
     with open(REPORT) as f:
         message = '\n'.join(f.read().split('\n')) 
-    message = await client.send_message(int(AUTHORIZED_USER_ID), message)
+    message = await client.send_message(int(TG_USER_ID), message)
     msg_ids.append(message.id)
-    msg_ids.append(message.id+1)
     subprocess.run(f'rm {REPORT}', shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
+msg_ids = []
 
-@client.on(events.NewMessage(pattern='/clear', from_users=int(AUTHORIZED_USER_ID)))
+@client.on(events.NewMessage(pattern='/clear', from_users=int(TG_USER_ID)))
 async def clear_handler(event):
-    current_id = event.message.id
-    chat = event.peer_id.user_id
-    await client.delete_messages(chat, msg_ids)
-    msg_ids.clear()
+    msg_ids.append(event.message.id)
+    try:
+        to_delete = msg_ids[:]
+        msg_ids.clear()
+        await client.delete_messages(event.chat_id, to_delete)
+    except errors.MessageDeleteForbiddenError:
+        await event.respond("Can't delete old messages!!!")
+    except errors.RPCError as e:
+        print(f"An error occurred: {e}")
+        await event.respond(f"An error occurred: {e}")
+        print(f"An error occurred: {e}")
 
 async def main():
     await client.start(bot_token=TG_BOT_TOKEN)
     await client.run_until_disconnected()
 
 asyncio.run(main())
-

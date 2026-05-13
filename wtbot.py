@@ -1,7 +1,7 @@
 import requests, sys, os
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(dotenv_path=os.getenv('DOTENV_FILE_PATH'))
 
 ir = os.getenv('ir').split(' ')
 kv = os.getenv('kv').split(' ')
@@ -59,7 +59,3 @@ elif len(sys.argv) == 3:
             message = i.split('-')[-1] + ' 👉  ' + max_tmp + '/' + min_tmp + '°C    ' + max_prc_prb + '%'
             with open(REPORT, 'a') as f: f.write(message+'\n')
             print(message)
-
-
-
-
