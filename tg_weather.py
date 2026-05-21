@@ -46,24 +46,9 @@ async def handler(event):
     with open(REPORT) as f:
         message = '\n'.join(f.read().split('\n')) 
     message = await client.send_message(int(TG_USER_ID), message)
-    msg_ids.append(message.id)
+    await asyncio.sleep(15)
+    await client.delete_messages(event.chat_id, message.id)
     subprocess.run(f'rm {REPORT}', shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-msg_ids = []
-
-@client.on(events.NewMessage(pattern='/clear', from_users=int(TG_USER_ID)))
-async def clear_handler(event):
-    msg_ids.append(event.message.id)
-    try:
-        to_delete = msg_ids[:]
-        msg_ids.clear()
-        await client.delete_messages(event.chat_id, to_delete)
-    except errors.MessageDeleteForbiddenError:
-        await event.respond("Can't delete old messages!!!")
-    except errors.RPCError as e:
-        print(f"An error occurred: {e}")
-        await event.respond(f"An error occurred: {e}")
-        print(f"An error occurred: {e}")
 
 async def main():
     await client.start(bot_token=TG_BOT_TOKEN)
