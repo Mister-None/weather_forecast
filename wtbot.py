@@ -33,7 +33,6 @@ if len(sys.argv) == 3:
     elif sys.argv[2] == 'w':
         params['forecast_days'] = 7
         params['daily'] = ["temperature_2m_max", "temperature_2m_min", "precipitation_probability_max"]
-
 responses = requests.get(url, params=params)
 data = responses.json()
 
