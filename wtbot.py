@@ -1,6 +1,6 @@
 import requests, sys, os
 from dotenv import load_dotenv
-
+print('blalbla')
 load_dotenv(dotenv_path=os.getenv('DOTENV_FILE_PATH'))
 
 ir = os.getenv('ir').split(' ')
