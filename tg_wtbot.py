@@ -12,7 +12,6 @@ TG_BOT_TOKEN = os.getenv('tg_wtbot_token')
 TG_BOT_SESSION = os.getenv('tg_wtbot_session')
 TG_USER_ID = os.getenv('tg_user_id')
 WT_PATH = os.getenv('wt_path')
-REPORT = os.getenv('report')
 
 client = TelegramClient(TG_BOT_SESSION, APP_ID, APP_HASH)
 
@@ -40,15 +39,11 @@ async def start(event):
 
 @client.on(events.CallbackQuery)
 async def handler(event):
-    script_name = 'python ' + SCRIPT_MAP.get(event.data)
-    subprocess.run(script_name, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    
-    with open(REPORT) as f:
-        message = '\n'.join(f.read().split('\n')) 
-    message = await client.send_message(int(TG_USER_ID), message)
-    await asyncio.sleep(15)
+    command = 'python ' + SCRIPT_MAP.get(event.data)
+    answer = subprocess.run(command, shell=True, capture_output=True, text=True).stdout.strip()
+    message = await client.send_message(int(TG_USER_ID), answer)
+    await asyncio.sleep(20)
     await client.delete_messages(event.chat_id, message.id)
-    subprocess.run(f'rm {REPORT}', shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 async def main():
     await client.start(bot_token=TG_BOT_TOKEN)
